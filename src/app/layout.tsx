@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     "png to jpg",
     "free online converter",
   ],
+  verification: {
+    google: "zkSlO1rHvidxpB4w0AL-bb8qxtRqCxGlG62MAWdYFuI",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
