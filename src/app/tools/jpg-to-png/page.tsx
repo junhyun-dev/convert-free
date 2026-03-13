@@ -24,7 +24,7 @@ export default function JpgToPngPage() {
     return () => {
       converted.forEach((f) => { if (f.url) URL.revokeObjectURL(f.url); });
     };
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 const handleFiles = useCallback((newFiles: FileList | null) => {
     if (!newFiles) return;
@@ -77,6 +77,10 @@ const handleFiles = useCallback((newFiles: FileList | null) => {
             },
             "image/png"
           );
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve();
         };
         img.src = url;
       });
@@ -142,14 +146,6 @@ const handleFiles = useCallback((newFiles: FileList | null) => {
             <p className="text-sm text-muted-foreground mt-1">
               or click to browse
             </p>
-            <input
-              type="file"
-              accept=".jpg,.jpeg"
-              multiple
-              className="absolute inset-0 opacity-0 cursor-pointer"
-              style={{ position: "relative" }}
-              onChange={(e) => handleFiles(e.target.files)}
-            />
             <label className="cursor-pointer">
               <Button variant="secondary" className="mt-4" type="button">
                 Select Files

@@ -19,7 +19,7 @@ export default function PdfSplitPage() {
     return () => {
       splitUrls.forEach((f) => { if (f.url) URL.revokeObjectURL(f.url); });
     };
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 const handleFile = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;

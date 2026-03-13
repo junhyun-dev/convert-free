@@ -17,7 +17,7 @@ export default function PdfMergePage() {
     return () => {
       if (mergedUrl) URL.revokeObjectURL(mergedUrl);
     };
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 const handleFiles = useCallback((newFiles: FileList | null) => {
     if (!newFiles) return;

@@ -18,7 +18,7 @@ export default function ImageToPdfPage() {
     return () => {
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
     };
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 const handleFiles = useCallback((newFiles: FileList | null) => {
     if (!newFiles) return;

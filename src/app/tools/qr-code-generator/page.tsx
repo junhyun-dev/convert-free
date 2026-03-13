@@ -88,8 +88,10 @@ export default function QrCodeGeneratorPage() {
     const content = getQrContent();
     if (!content.trim()) return;
     try {
+      const sizeNum = Math.max(100, Math.min(1000, parseInt(size) || 300));
       const svgStr = await QRCode.toString(content, {
         type: "svg",
+        width: sizeNum,
         margin: 2,
         color: { dark: fgColor, light: bgColor },
         errorCorrectionLevel: "M",

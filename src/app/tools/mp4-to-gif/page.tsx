@@ -19,7 +19,7 @@ export default function Mp4ToGifPage() {
     return () => {
       if (gifUrl) URL.revokeObjectURL(gifUrl);
     };
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFile = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;

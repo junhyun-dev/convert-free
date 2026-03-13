@@ -19,6 +19,12 @@ export default function ImageResizerPage() {
   const [resizing, setResizing] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
+  useEffect(() => {
+    return () => {
+      if (resized?.url) URL.revokeObjectURL(resized.url);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleFile = useCallback((newFiles: FileList | null) => {
     if (!newFiles || newFiles.length === 0) return;
     const f = newFiles[0];
@@ -35,6 +41,11 @@ export default function ImageResizerPage() {
       setTargetWidth(img.naturalWidth);
       setTargetHeight(img.naturalHeight);
       URL.revokeObjectURL(img.src);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(img.src);
+      alert("Failed to load image. The file may be corrupted.");
+      setFile(null);
     };
     img.src = URL.createObjectURL(f);
   }, []);
@@ -75,6 +86,11 @@ export default function ImageResizerPage() {
         URL.revokeObjectURL(url);
         setResizing(false);
       }, mimeType, 0.92);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      setResizing(false);
+      alert("Failed to load image for resizing. The file may be corrupted.");
     };
     img.src = url;
   }, [file, targetWidth, targetHeight]);

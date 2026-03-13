@@ -47,7 +47,7 @@ export default function MarkdownToPdfPage() {
     return () => {
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
     };
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFile = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;

@@ -25,7 +25,7 @@ export default function PngToJpgPage() {
     return () => {
       converted.forEach((f) => { if (f.url) URL.revokeObjectURL(f.url); });
     };
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 const handleFiles = useCallback((newFiles: FileList | null) => {
     if (!newFiles) return;
@@ -82,6 +82,10 @@ const handleFiles = useCallback((newFiles: FileList | null) => {
             "image/jpeg",
             quality
           );
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve();
         };
         img.src = url;
       });

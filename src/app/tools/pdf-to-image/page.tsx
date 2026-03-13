@@ -22,7 +22,7 @@ export default function PdfToImagePage() {
     return () => {
       pages.forEach((f) => { if (f.url) URL.revokeObjectURL(f.url); });
     };
-  });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
 const handleFile = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -63,7 +63,7 @@ const handleFile = useCallback((files: FileList | null) => {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
-      await page.render({ canvasContext: ctx, viewport, canvas } as never).promise;
+      await page.render({ canvasContext: ctx, viewport } as never).promise;
 
       const mimeType = format === "png" ? "image/png" : "image/jpeg";
       const ext = format === "png" ? ".png" : ".jpg";
