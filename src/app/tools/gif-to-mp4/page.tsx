@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { toBlobURL } from "@ffmpeg/util";
 
 export default function GifToMp4Page() {
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -12,8 +14,8 @@ export default function GifToMp4Page() {
   const [converting, setConverting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [progress, setProgress] = useState("");
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const loadedRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -21,7 +23,7 @@ export default function GifToMp4Page() {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-const handleFile = useCallback((files: FileList | null) => {
+  const handleFile = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;
     const f = files[0];
     if (!/\.gif$/i.test(f.name)) return;
@@ -37,25 +39,31 @@ const handleFile = useCallback((files: FileList | null) => {
   const convert = useCallback(async () => {
     if (!file) return;
     setConverting(true);
-    setProgress("Loading FFmpeg...");
+    setProgress("Loading FFmpeg (first time may take a moment)...");
 
     try {
-      const { FFmpeg } = await import("@ffmpeg/ffmpeg");
-      const { fetchFile, toBlobURL } = await import("@ffmpeg/util");
+      if (!ffmpegRef.current) {
+        ffmpegRef.current = new FFmpeg();
+      }
+      const ffmpeg = ffmpegRef.current;
 
-      const ffmpeg = new FFmpeg();
       ffmpeg.on("progress", ({ progress: p }) => {
         setProgress(`Converting... ${Math.round(p * 100)}%`);
       });
 
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-      });
+      if (!loadedRef.current) {
+        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+        await ffmpeg.load({
+          coreURL: `${baseURL}/ffmpeg-core.js`,
+          wasmURL: `${baseURL}/ffmpeg-core.wasm`,
+        });
+        loadedRef.current = true;
+      }
+
       setProgress("Processing GIF...");
 
-      await ffmpeg.writeFile("input.gif", await fetchFile(file));
+      const fileData = new Uint8Array(await file.arrayBuffer());
+      await ffmpeg.writeFile("input.gif", fileData);
       await ffmpeg.exec([
         "-i", "input.gif",
         "-movflags", "faststart",
@@ -65,10 +73,9 @@ const handleFile = useCallback((files: FileList | null) => {
       ]);
 
       const data = await ffmpeg.readFile("output.mp4");
-      const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: "video/mp4" });
+      const blob = new Blob([new Uint8Array(data as unknown as ArrayBuffer)], { type: "video/mp4" });
       setMp4Url(URL.createObjectURL(blob));
       setProgress("Done!");
-      ffmpeg.terminate();
     } catch (err) {
       setProgress("Error: conversion failed. Try a different GIF.");
       console.error(err);
@@ -134,8 +141,6 @@ const handleFile = useCallback((files: FileList | null) => {
           <video src={mp4Url} controls loop className="max-w-full rounded-md mx-auto" style={{ maxHeight: 400 }} />
         </CardContent></Card>
       )}
-
-      <canvas ref={canvasRef} className="hidden" />
 
       <section className="py-6"><h2 className="text-sm font-semibold text-muted-foreground mb-3">Related Tools</h2>
         <div className="flex flex-wrap gap-2">

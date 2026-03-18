@@ -1,9 +1,11 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { toBlobURL } from "@ffmpeg/util";
 
 export default function Mp4ToGifPage() {
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -14,6 +16,8 @@ export default function Mp4ToGifPage() {
   const [progress, setProgress] = useState("");
   const [fps, setFps] = useState(10);
   const [width, setWidth] = useState(480);
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const loadedRef = useRef(false);
 
   useEffect(() => {
     return () => {
@@ -37,26 +41,32 @@ export default function Mp4ToGifPage() {
   const convert = useCallback(async () => {
     if (!file) return;
     setConverting(true);
-    setProgress("Loading FFmpeg...");
+    setProgress("Loading FFmpeg (first time may take a moment)...");
 
     try {
-      const { FFmpeg } = await import("@ffmpeg/ffmpeg");
-      const { fetchFile, toBlobURL } = await import("@ffmpeg/util");
+      if (!ffmpegRef.current) {
+        ffmpegRef.current = new FFmpeg();
+      }
+      const ffmpeg = ffmpegRef.current;
 
-      const ffmpeg = new FFmpeg();
       ffmpeg.on("progress", ({ progress: p }) => {
         setProgress(`Converting... ${Math.round(p * 100)}%`);
       });
 
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-      });
+      if (!loadedRef.current) {
+        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
+        await ffmpeg.load({
+          coreURL: `${baseURL}/ffmpeg-core.js`,
+          wasmURL: `${baseURL}/ffmpeg-core.wasm`,
+        });
+        loadedRef.current = true;
+      }
+
       setProgress("Processing video...");
 
       const ext = file.name.split(".").pop()?.toLowerCase() || "mp4";
-      await ffmpeg.writeFile(`input.${ext}`, await fetchFile(file));
+      const fileData = new Uint8Array(await file.arrayBuffer());
+      await ffmpeg.writeFile(`input.${ext}`, fileData);
       await ffmpeg.exec([
         "-i", `input.${ext}`,
         "-vf", `fps=${fps},scale=${width}:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`,
@@ -65,10 +75,9 @@ export default function Mp4ToGifPage() {
       ]);
 
       const data = await ffmpeg.readFile("output.gif");
-      const blob = new Blob([new Uint8Array(data as Uint8Array)], { type: "image/gif" });
+      const blob = new Blob([new Uint8Array(data as unknown as ArrayBuffer)], { type: "image/gif" });
       setGifUrl(URL.createObjectURL(blob));
       setProgress("Done!");
-      ffmpeg.terminate();
     } catch (err) {
       setProgress("Error: conversion failed. Try a shorter video or different format.");
       console.error(err);
