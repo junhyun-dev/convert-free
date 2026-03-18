@@ -3,10 +3,26 @@ import type { MetadataRoute } from "next";
 const BASE = "https://www.convertfree.cc";
 
 const tools = [
+  // Image Converters
   "jpg-to-png", "png-to-jpg", "webp-to-png", "png-to-webp", "svg-to-png",
-  "heic-to-jpg", "image-resizer", "image-compressor", "pdf-to-image",
-  "image-to-pdf", "pdf-merge", "pdf-split", "gif-to-mp4", "mp4-to-gif",
-  "csv-to-json", "markdown-to-pdf", "qr-code-generator",
+  "heic-to-jpg", "webp-to-jpg", "jpg-to-webp", "bmp-to-png", "bmp-to-jpg",
+  "gif-to-png", "avif-to-png", "avif-to-jpg",
+  // Image Tools
+  "image-resizer", "image-compressor",
+  // PDF Tools
+  "pdf-to-image", "image-to-pdf", "pdf-merge", "pdf-split",
+  // Video
+  "gif-to-mp4", "mp4-to-gif",
+  // Data Converters
+  "csv-to-json", "json-to-csv", "xml-to-json", "json-to-xml",
+  "yaml-to-json", "json-to-yaml", "tsv-to-csv", "html-to-markdown",
+  // Document
+  "markdown-to-pdf",
+  // Text Utilities
+  "base64-encode-decode", "url-encode-decode", "json-formatter",
+  "case-converter", "word-counter", "lorem-ipsum-generator",
+  // Generator
+  "qr-code-generator",
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

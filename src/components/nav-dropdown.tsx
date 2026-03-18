@@ -11,8 +11,20 @@ const categories = [
       { name: "PNG to JPG", href: "/tools/png-to-jpg" },
       { name: "WebP to PNG", href: "/tools/webp-to-png" },
       { name: "PNG to WebP", href: "/tools/png-to-webp" },
+      { name: "WebP to JPG", href: "/tools/webp-to-jpg" },
+      { name: "JPG to WebP", href: "/tools/jpg-to-webp" },
       { name: "SVG to PNG", href: "/tools/svg-to-png" },
       { name: "HEIC to JPG", href: "/tools/heic-to-jpg" },
+      { name: "BMP to PNG", href: "/tools/bmp-to-png" },
+      { name: "BMP to JPG", href: "/tools/bmp-to-jpg" },
+      { name: "GIF to PNG", href: "/tools/gif-to-png" },
+      { name: "AVIF to PNG", href: "/tools/avif-to-png" },
+      { name: "AVIF to JPG", href: "/tools/avif-to-jpg" },
+    ],
+  },
+  {
+    label: "Image Tools",
+    tools: [
       { name: "Image Resizer", href: "/tools/image-resizer" },
       { name: "Image Compressor", href: "/tools/image-compressor" },
     ],
@@ -27,12 +39,35 @@ const categories = [
     ],
   },
   {
-    label: "Other Converters",
+    label: "Video",
     tools: [
       { name: "GIF to MP4", href: "/tools/gif-to-mp4" },
       { name: "MP4 to GIF", href: "/tools/mp4-to-gif" },
+    ],
+  },
+  {
+    label: "Data Converters",
+    tools: [
       { name: "CSV to JSON", href: "/tools/csv-to-json" },
+      { name: "JSON to CSV", href: "/tools/json-to-csv" },
+      { name: "XML to JSON", href: "/tools/xml-to-json" },
+      { name: "JSON to XML", href: "/tools/json-to-xml" },
+      { name: "YAML to JSON", href: "/tools/yaml-to-json" },
+      { name: "JSON to YAML", href: "/tools/json-to-yaml" },
+      { name: "TSV to CSV", href: "/tools/tsv-to-csv" },
+      { name: "HTML to Markdown", href: "/tools/html-to-markdown" },
       { name: "Markdown to PDF", href: "/tools/markdown-to-pdf" },
+    ],
+  },
+  {
+    label: "Text Utilities",
+    tools: [
+      { name: "Base64 Encode/Decode", href: "/tools/base64-encode-decode" },
+      { name: "URL Encode/Decode", href: "/tools/url-encode-decode" },
+      { name: "JSON Formatter", href: "/tools/json-formatter" },
+      { name: "Case Converter", href: "/tools/case-converter" },
+      { name: "Word Counter", href: "/tools/word-counter" },
+      { name: "Lorem Ipsum Generator", href: "/tools/lorem-ipsum-generator" },
       { name: "QR Code Generator", href: "/tools/qr-code-generator" },
     ],
   },
@@ -70,7 +105,7 @@ export default function NavDropdown() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-[520px] bg-card border border-border rounded-lg shadow-xl p-4 z-50 columns-2 gap-4">
+        <div className="absolute right-0 top-full mt-2 w-[600px] bg-card border border-border rounded-lg shadow-xl p-4 z-50 columns-3 gap-4">
           {categories.map((cat) => (
             <div key={cat.label} className="break-inside-avoid mb-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
